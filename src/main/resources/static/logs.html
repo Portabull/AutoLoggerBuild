@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+
+    <link rel="stylesheet" href="/css/main.css" />
+    <style>
+div.ex1 {
+  background-color: black;
+
+  height: 559px;
+  overflow: scroll;
+}
+
+
+#myBtn {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 30px;
+  z-index: 99;
+  font-size: 18px;
+  border: none;
+  outline: none;
+  background-color: red;
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 4px;
+}
+
+#myBtn:hover {
+  background-color: #555;
+}
+
+    </style>
+</head>
+<body >
+<noscript>
+    <h2>Sorry! Your browser doesn't support Javascript</h2>
+</noscript>
+
+<br>
+<div align="right">
+    <button onclick="clearLogs()">Clear</button>
+    <button onclick="dfgfsg()">Download Log File</button>
+</div>
+<br>
+
+<div style="background-color:black;"  class="ex1" id="jkgbiuguyvtujkbjutvt">
+</div>
+
+
+
+<!--<div id="username-page">-->
+
+
+
+<!--    <div class="username-page-container">-->
+<!--        <img src="https://drive.google.com/uc?export=download&id=19buk3unVt8EUwrnTEXzUvtlnmogWZL8R" alt="" width="150" height="150">-->
+<!--        <h1 class="title">Portable Chat Application</h1>-->
+<!--        <h2 class="title">Type Your Name Here</h2>-->
+<form id="usernameForm" name="usernameForm" hidden>
+
+    <input type="text" id="name" placeholder="Username" autocomplete="off" class="form-control" />
+    <button type="submit" id="startChat" class="accent username-submit">Start Chatting</button>
+    <!--            <div class="form-group">-->
+    <!--                <input type="text" id="name" placeholder="Username" autocomplete="off" class="form-control" />-->
+    <!--            </div>-->
+    <!--            <div class="form-group">-->
+    <!--                -->
+    <!--            </div>-->
+</form>
+<!--    </div>-->
+<!--</div>-->
+
+<div id="chat-page" class="hidden">
+
+
+
+    <div class="chat-container">
+        <div class="chat-header">
+
+        </div>
+        <div class="connecting" hidden>
+            Connecting...
+        </div>
+        <ul id="messageArea">
+
+        </ul>
+        <form id="messageForm" name="messageForm" nameForm="messageForm">
+            <div class="form-group">
+                <div class="input-group clearfix">
+                    <input type="text" id="message" hidden placeholder="Type a message..." autocomplete="off" class="form-control"/>
+                    <button type="submit" class="primary" hidden>Send</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="/js/main.js"></script>
+<script>
+ var timeinterval;
+var windowLocationHref_B = window.location.href;
+var urlHref_B94857 = new URL(windowLocationHref_B);
+
+const BASE_URL = urlHref_B94857.protocol + "//" + urlHref_B94857.hostname  + ":" + urlHref_B94857.port
+
+      init();
+      function init(){
+    document.getElementById("name").value =  Date.now();
+    document.getElementById("startChat").click(true);
+<!--  timeinterval = setInterval(scrollWin, 10);-->
+      }
+
+
+function ScrollDiv(){
+
+   if(document.getElementById('ex1').scrollTop<(document.getElementById('ex1').scrollHeight-document.getElementById('ex1').offsetHeight)){-1
+         document.getElementById('ex1').scrollTop=document.getElementById('ex1').scrollTop+1
+         }
+   else {document.getElementById('ex1').scrollTop=0;}
+}
+
+timeinterval = setInterval(ScrollDiv,50);
+
+        function dfgfsg(){
+
+    var xhr = new XMLHttpRequest();
+
+
+           xhr.open("GET", BASE_URL + "/download-documents");
+
+           xhr.setRequestHeader("Accept", "application/json");
+
+
+           xhr.setRequestHeader("Content-Type", "application/json");
+
+
+           var data = JSON.stringify({});
+
+           xhr.send(data);
+
+
+             xhr.onreadystatechange = function () {
+
+
+                    if (xhr.readyState === 4) {
+                        console.log(xhr.status);
+
+                         const fileResponse = JSON.parse(xhr.responseText);
+
+                if (fileResponse.statusCode == 200) {
+
+
+
+                     var a = document.createElement("a");
+                       a.href =fileResponse.data.file;
+                          a.download = fileResponse.data.fileName; //File name Here
+                        a.click();
+
+                } else {
+                           alert(fileResponse.message);
+                    }
+                }
+
+                    };
+
+                    }
+
+
+                    function clearLogs(){
+
+                        document.getElementById('jkgbiuguyvtujkbjutvt').innerHTML = '';
+                    }
+
+  </script>
+
+</body>
+</html>

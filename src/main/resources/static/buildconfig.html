@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<style>
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input[type=submit] {
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #45a049;
+}
+
+div {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+</style>
+<body>
+
+<div>
+    <form action="javaScript:saveBuildDetails()">
+        <label for="gitUrl">Git Url</label>
+        <input type="text" id="gitUrl" name="gitUrl" placeholder="Git Url..">
+
+        <label for="deployableLocation">Deployable Location</label>
+        <input type="text" id="deployableLocation" name="deployableLocation" placeholder="Deployable Location..">
+
+        <label for="port">Application Port</label>
+        <input type="text" id="port" name="port" placeholder="Application Port..">
+
+        <input type="submit" value="Submit">
+    </form>
+</div>
+
+
+<script>
+
+var windowLocationHref_B = window.location.href;
+var urlHref_B94857 = new URL(windowLocationHref_B);
+
+const BASE_URL = urlHref_B94857.protocol + "//" + urlHref_B94857.hostname  + ":" + urlHref_B94857.port
+
+    init();
+
+    function init() {
+         var xhr = new XMLHttpRequest();
+
+        xhr.open("GET", BASE_URL + "/get-build-details");
+
+        xhr.setRequestHeader("Accept", "application/json");
+
+
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+
+        var data = JSON.stringify({});
+
+        xhr.send(data);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                console.log(xhr.status);
+                console.log(xhr.responseText);
+                const resp = JSON.parse(xhr.responseText);
+                document.getElementById("port").value = resp.port;
+                document.getElementById("gitUrl").value = resp.gitUrl;
+                document.getElementById("deployableLocation").value = resp.deployableLocation;
+            }
+        };
+    }
+
+ function saveBuildDetails(){
+
+      var xhr = new XMLHttpRequest();
+
+        xhr.open("POST", BASE_URL + "/save-build-details" );
+
+        xhr.setRequestHeader("Accept", "application/json");
+
+
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+
+        var data = JSON.stringify({"port": document.getElementById("port").value ,"gitUrl": document.getElementById("gitUrl").value, "deployableLocation": document.getElementById("deployableLocation").value});
+
+        xhr.send(data);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                console.log(xhr.status);
+                console.log(xhr.responseText);
+                alert('Config Saved Successfully');
+            }
+        };
+    }
+
+</script>
+</body>
+</html>
+
+

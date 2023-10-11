@@ -1,0 +1,7 @@
+package com.logger.model;
+
+public enum BUILDSTATUS {
+
+    STARTED, DOWNLOADING, UNZIPPING, BUILD, SHUTDOWN, MOVING, RUNNING
+
+}

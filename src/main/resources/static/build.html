@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<style>
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input[type=submit] {
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #45a049;
+}
+
+div {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+
+.uploadLoading:after { content: ' .'; animation: dots 1s steps(5, end) infinite;} @keyframes dots { 0%, 20% { color: rgba(0,0,0,0); text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0);} 40% { color: #4CAF50; text-shadow: .25em 0 0 rgba(0,0,0,0), .5em 0 0 rgba(0,0,0,0);} 60% { text-shadow: .25em 0 0 #4CAF50, .5em 0 0 rgba(0,0,0,0);} 80%, 100% { text-shadow: .25em 0 0 #4CAF50, .5em 0 0 #4CAF50;}}
+
+</style>
+<body>
+
+
+
+<h2>Portabull Build</h2>
+
+<div align="center">
+    <button onclick="buildApplication()" class="button">Trigger New Build</button>
+</div>
+
+<div id="buildOutputStatus" align="center">
+
+
+
+</div>
+
+<div id="buildOutputLogs">
+
+</div>
+
+<script>
+
+var onhold = false;
+
+var windowLocationHref_B = window.location.href;
+var urlHref_B94857 = new URL(windowLocationHref_B);
+
+const BASE_URL = urlHref_B94857.protocol + "//" + urlHref_B94857.hostname  + ":" + urlHref_B94857.port
+
+    function buildApplication() {
+
+                if(onhold){
+                    return;
+                    }
+
+            onhold = true;
+
+            var xhr = new XMLHttpRequest();
+
+        xhr.open("GET", BASE_URL + "/get-build-number");
+
+        xhr.setRequestHeader("Accept", "application/json");
+
+
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+
+        var data = JSON.stringify({});
+
+        xhr.send(data);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+
+
+                console.log(xhr.status);
+                console.log(xhr.responseText);
+
+                var buildNumber = xhr.responseText;
+
+                callBuildStatusAPI(buildNumber);
+
+                   var xhr1 = new XMLHttpRequest();
+
+        xhr1.open("POST", BASE_URL + "/build-new-artifact");
+
+        xhr1.setRequestHeader("Accept", "application/json");
+
+
+        xhr1.setRequestHeader("Content-Type", "application/json");
+
+
+        var data1 = JSON.stringify({"buildNumber":buildNumber});
+
+        xhr1.send(data1);
+
+xhr1.onreadystatechange = function () {
+            if (xhr1.readyState === 4) {
+                console.log(xhr1.status);
+                console.log(xhr1.responseText);
+                clearInterval(timeinterval);
+                onhold = false;
+                document.getElementById('buildOutputLogs').innerHTML = '<h1>Build Logs</h1>' +  xhr1.responseText + "<h1>Running Logs</h1><button onclick=\"redirectToLogsPage()\">Show Application Logs</button>";
+
+            }
+        };
+            }
+        };
+
+    }
+        var buildNumberC;
+
+       function  callBuildStatusAPI(buildNumber){
+             timeinterval      = setInterval(callBuildStatusAPI1, 500);
+            buildNumberC = buildNumber;
+       }
+       var onHoldBuild = false;
+
+       function callBuildStatusAPI1() {
+
+       if(!onhold){
+        return;
+       }
+
+       if(onHoldBuild){
+        return;
+       }
+
+        onHoldBuild = true;
+
+                    var xhr1 = new XMLHttpRequest();
+
+        xhr1.open("POST", BASE_URL + "/get-build-status?buildNumber=" + buildNumberC + "&showBuildOutput=false");
+
+        xhr1.setRequestHeader("Accept", "application/json");
+
+
+        xhr1.setRequestHeader("Content-Type", "application/json");
+
+
+        var data1 = JSON.stringify({});
+
+        xhr1.send(data1);
+
+xhr1.onreadystatechange = function () {
+            if (xhr1.readyState === 4) {
+                console.log(xhr1.status);
+                console.log(xhr1.responseText);
+ onHoldBuild = false;
+                document.getElementById('buildOutputStatus').innerHTML = '';
+
+                const resp = JSON.parse(xhr1.responseText);
+
+                if("STARTED" == resp.buildStatus){
+                  document.getElementById('buildOutputStatus').innerHTML = "<h4 id=\"uploadLoading1\" class=\"uploadLoading\" style=\"text-align: center; color: #4CAF50;\">Build Started</h4>";
+                }else if("DOWNLOADING" == resp.buildStatus){
+
+                document.getElementById('buildOutputStatus').innerHTML = "<h4 style=\"color:green\">BUILD STARTED<span>&#9989</span></h4>";
+                    document.getElementById('buildOutputStatus').innerHTML = document.getElementById('buildOutputStatus').innerHTML + "<h4 id=\"uploadLoading1\" class=\"uploadLoading\" style=\"text-align: center; color: #4CAF50;\">Downloading from central Git Repository</h4>";
+                }else if("UNZIPPING" == resp.buildStatus){
+                document.getElementById('buildOutputStatus').innerHTML = "<h4  style=\"color:green\" align=\"center\">BUILD STARTED<span>&#9989</span></h4>";
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML + "<h4  style=\"color:green\" >Downloaded Successfully<span>&#9989</span></h4>";
+             document.getElementById('buildOutputStatus').innerHTML = document.getElementById('buildOutputStatus').innerHTML + "<h4 id=\"uploadLoading1\" class=\"uploadLoading\" style=\"text-align: center; color: #4CAF50;\">Unzipping the project files please wait</h4>";
+                }else if("BUILD" == resp.buildStatus){
+                  document.getElementById('buildOutputStatus').innerHTML = "<h4  style=\"color:green\" align=\"center\">BUILD STARTED<span>&#9989</span></h4>";
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML + "<h4  style=\"color:green\" >Downloaded Successfully<span>&#9989</span></h4>";
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML + "<h4  style=\"color:green\" >Unzipped Successfully<span>&#9989</span></h4>";
+                   document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML +    "<h4 id=\"uploadLoading1\" class=\"uploadLoading\" style=\"text-align: center; color: #4CAF50;\">Started Maven Build Please wait it may take sometime</h4>";
+                }else if("SHUTDOWN" == resp.buildStatus){
+
+                document.getElementById('buildOutputStatus').innerHTML = "<h4  style=\"color:green\" align=\"center\">BUILD STARTED<span>&#9989</span></h4>";
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML + "<h4  style=\"color:green\" >Downloaded Successfully<span>&#9989</span></h4>";
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML + "<h4  style=\"color:green\" >Unzipped Successfully<span>&#9989</span></h4>";
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML + "<h4  style=\"color:green\" >BUILD SUCCESS<span>&#9989</span></h4>";
+
+
+
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML +    "<h4 id=\"uploadLoading1\" class=\"uploadLoading\" style=\"text-align: center; color: #4CAF50;\">Shutting down the current application</h4>";
+                } else if("MOVING" == resp.buildStatus){
+
+                document.getElementById('buildOutputStatus').innerHTML = "<h4  style=\"color:green\" align=\"center\">BUILD STARTED<span>&#9989</span></h4>";
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML + "<h4  style=\"color:green\" >Downloaded Successfully<span>&#9989</span></h4>";
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML + "<h4  style=\"color:green\" >Unzipped Successfully<span>&#9989</span></h4>";
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML + "<h4  style=\"color:green\" >BUILD SUCCESS<span>&#9989</span></h4>";
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML + "<h4  style=\"color:green\" >Successfully Shutdown current application <span>&#9989</span></h4>";
+
+
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML +    "<h4 id=\"uploadLoading1\" class=\"uploadLoading\" style=\"text-align: center; color: #4CAF50;\">Moving artifact to the deployment directory</h4>";
+                }else{
+
+
+                document.getElementById('buildOutputStatus').innerHTML = "<h4  style=\"color:green\" align=\"center\">BUILD STARTED<span>&#9989</span></h4>";
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML + "<h4  style=\"color:green\" >Downloaded Successfully<span>&#9989</span></h4>";
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML + "<h4  style=\"color:green\" >Unzipped Successfully<span>&#9989</span></h4>";
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML + "<h4  style=\"color:green\" >BUILD SUCCESS<span>&#9989</span></h4>";
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML + "<h4  style=\"color:green\" >Successfully Shutdown current application <span>&#9989</span></h4>";
+                document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML + "<h4  style=\"color:green\" >Artifact Moved Successfully<span>&#9989</span></h4>";
+
+                 document.getElementById('buildOutputStatus').innerHTML =document.getElementById('buildOutputStatus').innerHTML +    "<h4 id=\"uploadLoading1\" class=\"uploadLoading\" style=\"text-align: center; color: #4CAF50;\">Application Started</h4>";
+                }
+
+
+            }
+        };
+            }
+
+
+
+    function redirectToLogsPage(){
+           window.location.href = "logs";
+    }
+
+
+ function saveBuildDetails(){
+
+      var xhr = new XMLHttpRequest();
+
+        xhr.open("POST", BASE_URL + "/save-build-details" );
+
+        xhr.setRequestHeader("Accept", "application/json");
+
+
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+
+        var data = JSON.stringify({"port": document.getElementById("port").value ,"gitUrl": document.getElementById("gitUrl").value, "deployableLocation": document.getElementById("deployableLocation").value});
+
+        xhr.send(data);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                console.log(xhr.status);
+                console.log(xhr.responseText);
+                alert('Config Saved Successfully');
+            }
+        };
+    }
+
+</script>
+</body>
+</html>
+
+
